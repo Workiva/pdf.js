@@ -1065,8 +1065,19 @@ var XRef = (function XRefClosure() {
       if (xrefEntry.uncompressed) {
         return this.fetchUncompressed(ref, xrefEntry, suppressEncryption);
       } else {
-        return this.fetchCompressed(xrefEntry, suppressEncryption);
+      // WF
+      // Patch from https://github.com/mozilla/pdf.js/pull/4907
+      // add object id to streams to prevent infinite loops.
+        xrefEntry = this.fetchCompressed(xrefEntry, suppressEncryption);
       }
+      if (isDict(xrefEntry)){
+        xrefEntry.objId = 'R' + ref.num + '.' + ref.gen;
+      } else if (isStream(xrefEntry)) {
+        xrefEntry.dict.objId = 'R' + ref.num + '.' + ref.gen;
+      }
+
+      return xrefEntry;
+      // END WF
     },
 
     fetchUncompressed: function XRef_fetchUncompressed(ref,

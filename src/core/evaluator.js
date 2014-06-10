@@ -74,6 +74,13 @@ var PartialEvaluator = (function PartialEvaluatorClosure() {
           if (!isStream(xObject)) {
             continue;
           }
+          if (xObject.dict.objId) {
+            if (processed[xObject.dict.objId]) {
+              // stream has objId and is processed already
+              continue;
+            }
+            processed[xObject.dict.objId] = true;
+          }
           var xResources = xObject.dict.get('Resources');
           if (isDict(xResources)) {
             nodes.push(xResources);
